@@ -129,6 +129,157 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--w
 }
 .add-hazard-btn:hover { border-color: var(--warn); color: var(--warn); }
 
+/* Worker rows (作業者＋署名) */
+.worker-row {
+  border: 1px solid var(--border-light); border-radius: var(--radius); padding: 12px;
+  margin-bottom: 10px; background: var(--surface2); position: relative;
+}
+.worker-row .worker-num {
+  font-family: var(--mono); font-size: 10px; color: var(--primary); margin-bottom: 8px; font-weight: 700;
+}
+.worker-row .remove-worker {
+  position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--text-muted);
+  cursor: pointer; font-size: 16px; line-height: 1; padding: 2px 6px;
+}
+.worker-row .remove-worker:hover { color: var(--danger); }
+.worker-row .field { margin-bottom: 10px; }
+.worker-row .field:last-child { margin-bottom: 0; }
+
+/* ============================================================
+   署名欄（入力フォーム）
+   ============================================================ */
+.btn-ghost { background: none; border: 1px solid var(--border); color: var(--text-sub); }
+.btn-ghost:hover { background: var(--border-light); }
+.btn-sm { padding: 7px 12px; font-size: 12.5px; }
+
+.sign-hint {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-sub);
+}
+
+.sign-input-wrap {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sign-canvas-area {
+  flex: 1;
+  min-width: 160px;
+  height: 50px;
+  border: 1.5px dashed var(--border);
+  background: var(--bg);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.15s, background 0.15s;
+}
+.sign-canvas-area:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+.sign-canvas-area img {
+  max-height: 44px;
+  max-width: 100%;
+  display: none;
+  filter: contrast(3);
+  mix-blend-mode: multiply;
+}
+.sign-canvas-area.signed { background: #fff; }
+.sign-ph-text { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+
+.sign-input-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+}
+
+/* ===== サインパッドモーダル（全画面） ===== */
+.sign-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: #000;
+  z-index: 9999;
+  flex-direction: column;
+}
+.sign-modal-overlay.open { display: flex; }
+
+.sign-modal-header {
+  background: var(--primary);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.sign-modal-header span { color: #fff; font-size: 17px; font-weight: 700; }
+.sign-modal-header button {
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.4);
+  color: #fff;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.sign-modal-canvas-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+}
+#sign-pad-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+.sign-modal-guide {
+  position: absolute;
+  bottom: 14px;
+  left: 0; right: 0;
+  text-align: center;
+  font-size: 13px;
+  color: #bbb;
+  pointer-events: none;
+}
+
+.sign-modal-footer {
+  background: #eceff1;
+  padding: 14px 18px;
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.sign-modal-footer button {
+  flex: 1;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sign-modal-clear { background: #fff; border: 1.5px solid #ccc; color: #333; }
+.sign-modal-confirm { background: var(--primary); color: #fff; flex: 2; }
+
+/* 詳細シートの署名サムネイル */
+.detail-sign-img {
+  max-width: 220px; max-height: 70px; display: block; margin-top: 4px;
+  filter: contrast(3); mix-blend-mode: multiply; background: #fff; border-radius: 6px; padding: 4px;
+  border: 1px solid var(--border-light);
+}
+
 /* List view */
 .ky-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);

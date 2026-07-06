@@ -48,8 +48,9 @@
           <textarea id="workContent" placeholder="例：室外機入替のためクレーンにて搬入・据付作業" required></textarea>
         </div>
         <div class="field" style="margin-bottom:0;">
-          <label>作業者（読点・スペース区切りで複数名可）</label>
-          <input type="text" id="workers" placeholder="例：内山、田中、佐藤">
+          <label>作業者（氏名＋署名）</label>
+          <div id="worker-list"></div>
+          <button type="button" class="add-hazard-btn" onclick="addWorkerRow()">＋ 作業者を追加</button>
         </div>
       </div>
 
@@ -65,9 +66,22 @@
           <label>今日の重点実施項目（指差し呼称の対象など）</label>
           <textarea id="priorityAction" placeholder="例：脚立昇降時、三点支持ヨシ！"></textarea>
         </div>
-        <div class="field" style="margin-bottom:0;">
+        <div class="field">
           <label>確認者（KY実施リーダーなど）</label>
           <input type="text" id="confirmedBy" placeholder="例：内山">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>確認者 署名 <span class="sign-hint">（タップしてサインしてください）</span></label>
+          <div class="sign-input-wrap">
+            <div class="sign-canvas-area" id="confirm-sign-preview" onclick="openSignPad('confirm')">
+              <img id="confirm-sign-preview-img" src="" alt="サイン">
+              <span id="confirm-sign-preview-ph" class="sign-ph-text">タップしてサイン ✏</span>
+            </div>
+            <div class="sign-input-btns">
+              <button type="button" class="btn btn-ghost btn-sm" onclick="openSignPad('confirm')">✏ サイン</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="clearSignInput('confirm')">クリア</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -96,6 +110,22 @@
 </div>
 
 <div id="toast" class="toast"></div>
+
+<!-- Sign Pad Modal -->
+<div id="sign-pad-modal" class="sign-modal-overlay">
+  <div class="sign-modal-header">
+    <span>サインをお願いします</span>
+    <button type="button" onclick="closeSignPad()">キャンセル</button>
+  </div>
+  <div class="sign-modal-canvas-wrap">
+    <canvas id="sign-pad-canvas"></canvas>
+    <div class="sign-modal-guide">こちらにサインしてください</div>
+  </div>
+  <div class="sign-modal-footer">
+    <button type="button" class="sign-modal-clear" onclick="clearSignPad()">クリア</button>
+    <button type="button" class="sign-modal-confirm" onclick="confirmSignPad()">✓ このサインで確定</button>
+  </div>
+</div>
 
 <script src="js/config.js"></script>
 <script src="js/app.js"></script>
