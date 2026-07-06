@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KY(危険予知)活動記録｜シオンテクノス</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-mark">KY</div>
+      <div class="brand-text">
+        <h1>KY活動記録</h1>
+        <p>シオンテクノス株式会社</p>
+      </div>
+    </div>
+    <a class="back-link" href="https://uchiyamazion.github.io/sion-portal/">← ポータル</a>
+  </div>
+</header>
+
+<main>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-view="view-form">新規記録</button>
+    <button class="tab-btn" data-view="view-list">記録一覧</button>
+  </div>
+
+  <!-- ───────── 新規記録 ───────── -->
+  <div id="view-form" class="view active">
+    <form id="ky-form">
+
+      <div class="panel">
+        <div class="panel-title"><span class="num">1</span>作業情報</div>
+        <div class="field">
+          <label>日付</label>
+          <input type="date" id="date" required>
+        </div>
+        <div class="field">
+          <label>現場名</label>
+          <input type="text" id="siteName" placeholder="例：〇〇ビル 空調更新工事" required>
+        </div>
+        <div class="field">
+          <label>作業内容</label>
+          <textarea id="workContent" placeholder="例：室外機入替のためクレーンにて搬入・据付作業" required></textarea>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>作業者（読点・スペース区切りで複数名可）</label>
+          <input type="text" id="workers" placeholder="例：内山、田中、佐藤">
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="num">2</span>危険予知（どんな危険が潜んでいるか）</div>
+        <div id="hazard-list"></div>
+        <button type="button" class="add-hazard-btn" onclick="addHazardRow()">＋ 危険予知を追加</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="num">3</span>今日の重点実施項目・確認</div>
+        <div class="field">
+          <label>今日の重点実施項目（指差し呼称の対象など）</label>
+          <textarea id="priorityAction" placeholder="例：脚立昇降時、三点支持ヨシ！"></textarea>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>確認者（KY実施リーダーなど）</label>
+          <input type="text" id="confirmedBy" placeholder="例：内山">
+        </div>
+      </div>
+
+      <button type="submit" id="submit-btn" class="btn btn-primary btn-block">KY活動を保存する</button>
+    </form>
+  </div>
+
+  <!-- ───────── 記録一覧 ───────── -->
+  <div id="view-list" class="view">
+    <div id="ky-list-container">
+      <div class="loading-state">読み込み中…</div>
+    </div>
+  </div>
+
+</main>
+
+<!-- 詳細シート -->
+<div id="detail-overlay" class="detail-overlay hidden" onclick="if(event.target===this) closeDetail()">
+  <div class="detail-sheet">
+    <div class="detail-sheet-head">
+      <div style="font-weight:700; font-size:15px;">KY活動 詳細</div>
+      <button class="detail-close" onclick="closeDetail()">×</button>
+    </div>
+    <div id="detail-body"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
