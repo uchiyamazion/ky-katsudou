@@ -10,6 +10,30 @@ let kyRecords = [];
 const workerSignatures = {};   // { workerRowId: dataUrl }
 let confirmSignature = '';
 
+// ---- 危険予知テンプレート（空調・HVAC現場でよくあるKY項目） ----
+const HAZARD_TEMPLATES = [
+  { label: '脚立・はしごからの転落', point: '脚立やはしごの昇降中に足を踏み外し転落する', action: '脚立の天板に立たず、必ず三点支持で昇降する。使用前に脚立の開き止め金具を確認する。' },
+  { label: '高所（屋根上・室外機置場）からの墜落', point: '屋根上や高所での室外機設置・点検作業中に足を滑らせ墜落する', action: '安全帯（フルハーネス）を着用し、親綱に必ずフックを掛ける。作業範囲に養生・囲いを設置する。' },
+  { label: 'クレーン作業中の吊り荷落下・挟まれ', point: 'クレーンで室外機等を吊り上げる際、玉掛けの外れや旋回時の接触により吊り荷が落下し作業者が挟まれる', action: '玉掛けは有資格者が実施し、吊り荷の下に入らない。合図者を配置し声出し確認を徹底する。' },
+  { label: '冷媒ガスによる薬傷・凍傷', point: '冷媒（フロン類）取り扱い時にガス漏れ・噴出により薬傷や凍傷を負う', action: '保護メガネ・手袋を着用し、換気を確保した状態で作業する。バルブの開閉は指差し呼称で確認する。' },
+  { label: '電気配線作業中の感電', point: '電気配線・端子接続作業中に通電状態の回路へ触れ感電する', action: '作業前に必ずブレーカーを遮断し検電器で無通電を確認する。濡れた手での作業は行わない。' },
+  { label: '重量物運搬による腰痛・ぎっくり腰', point: '室外機等の重量物を人力で運搬する際、無理な体勢により腰を痛める', action: '複数人での運搬を徹底し、台車やチェーンブロックを活用する。持ち上げ時は膝を使い腰への負担を減らす。' },
+  { label: '悪天候（雨・強風）でのスリップ・転倒', point: '雨天や強風時の屋外・屋上作業で足元が滑り転倒する', action: '滑りにくい安全靴を着用し、無理な作業は中止・延期する。強風時は高所作業を控える。' },
+  { label: '車両誘導・搬入時の接触事故', point: '資材搬入や車両誘導中に、後退する車両や通行人と接触する', action: '誘導員を配置し、笛や合図で意思疎通を徹底する。周囲の歩行者・車両に注意を払う。' },
+  { label: '切断工具・カッターによる切創', point: '配管や断熱材の切断作業中に工具が滑り手指を切創する', action: '保護手袋を着用し、刃先の向きに指を置かない。切断時は周囲に人がいないことを確認する。' },
+  { label: '断熱材・粉じんの吸入', point: 'グラスウール等の断熱材切断時に粉じんを吸い込む', action: '防塵マスクを着用し、屋外や換気の良い場所で作業する。切断くずはこまめに清掃する。' }
+];
+
+function applyHazardTemplate(id, idx) {
+  const row = document.querySelector(`#hazard-list [data-hazard-id="${id}"]`);
+  if (!row) return;
+  if (idx === '') return; // 「－ テンプレートを選択 －」に戻した場合は何もしない
+  const t = HAZARD_TEMPLATES[idx];
+  if (!t) return;
+  row.querySelector('.hz-point').value = t.point;
+  row.querySelector('.hz-action').value = t.action;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('date').valueAsDate = new Date();
   addHazardRow();
@@ -45,6 +69,13 @@ function addHazardRow() {
   row.innerHTML = `
     <button type="button" class="remove-hazard" onclick="removeHazardRow(${id})">×</button>
     <div class="hazard-num">危険予知 #${id}</div>
+    <div class="field">
+      <label>テンプレートから選ぶ（該当なければ下欄に自由入力）</label>
+      <select class="hz-template" onchange="applyHazardTemplate(${id}, this.value)">
+        <option value="">－ テンプレートを選択 －</option>
+        ${HAZARD_TEMPLATES.map((t, i) => `<option value="${i}">${escapeHtml(t.label)}</option>`).join('')}
+      </select>
+    </div>
     <div class="field">
       <label>どんな危険が潜んでいるか（危険のポイント）</label>
       <textarea class="hz-point" placeholder="例：脚立から降りる際に足を踏み外す"></textarea>

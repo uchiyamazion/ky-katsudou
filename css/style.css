@@ -111,6 +111,11 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--w
 }
 .hazard-row .remove-hazard:hover { color: var(--danger); }
 
+.hazard-row .hz-template {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); font-family: var(--font); font-size: 13.5px; color: var(--text);
+}
+
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   padding: 10px 18px; border-radius: var(--radius); border: none; font-family: var(--font);
