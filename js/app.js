@@ -361,9 +361,21 @@ function showDetail(rec) {
     ${workersHtml}
     ${hazardsHtml}
     ${rec.priorityAction ? `<div class="field"><label>今日の重点実施項目</label><div>${escapeHtml(rec.priorityAction)}</div></div>` : ''}
-    ${rec.confirmedBy ? `<div class="field" style="margin-bottom:0;"><label>確認者：${escapeHtml(rec.confirmedBy)}</label>${signImgHtml(rec.confirmedBySignature)}</div>` : ''}
+    ${rec.confirmedBy ? `<div class="field"><label>確認者：${escapeHtml(rec.confirmedBy)}</label>${signImgHtml(rec.confirmedBySignature)}</div>` : ''}
+    <div class="detail-actions">
+      <button type="button" class="btn btn-primary btn-sm" onclick="openKyPrint('${rec.id}')">🖨 帳票を印刷・PDF出力</button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="openKyView('${rec.id}')">📱 QR確認・署名ページを開く</button>
+    </div>
   `;
   overlay.classList.remove('hidden');
+}
+
+function openKyPrint(id) {
+  window.open(`ky-print.html?id=${encodeURIComponent(id)}`, '_blank');
+}
+
+function openKyView(id) {
+  window.open(`ky-view.html?id=${encodeURIComponent(id)}`, '_blank');
 }
 
 function closeDetail() {

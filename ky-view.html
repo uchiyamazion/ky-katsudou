@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KY活動 内容確認・署名｜シオンテクノス</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f4f8; --surface: #ffffff; --surface2: #f7fafc;
+  --border: #d1dde8; --border-light: #e8f0f7;
+  --text: #1a2b3c; --text-sub: #5a7a94; --text-muted: #8fa5b8;
+  --primary: #0066cc; --primary-dark: #0052a3; --primary-light: #e6f0fb;
+  --warn: #d97706; --success: #38a169; --danger: #e53e3e;
+  --radius: 8px; --radius-lg: 12px;
+  --shadow: 0 1px 3px rgba(0,40,80,0.08), 0 4px 16px rgba(0,40,80,0.05);
+  --font: 'Noto Sans JP', sans-serif; --mono: 'IBM Plex Mono', monospace;
+}
+* , *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font); background: var(--bg); color: var(--text);
+  font-size: 14px; line-height: 1.6; min-height: 100vh; padding-bottom: 40px;
+}
+.header {
+  background: var(--primary); color: #fff; padding: 16px 18px;
+  text-align: center; box-shadow: var(--shadow);
+}
+.header h1 { font-size: 17px; font-weight: 700; }
+.header p { font-size: 12px; opacity: .85; margin-top: 2px; }
+
+main { max-width: 560px; margin: 0 auto; padding: 16px; }
+
+.state-box {
+  background: var(--surface); border-radius: var(--radius-lg); padding: 30px 16px;
+  text-align: center; color: var(--text-sub); box-shadow: var(--shadow); margin-top: 20px;
+}
+
+.panel {
+  background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg);
+  padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow);
+}
+.panel-title {
+  font-size: 12px; font-weight: 700; color: var(--primary); letter-spacing: .05em;
+  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.field { margin-bottom: 12px; }
+.field:last-child { margin-bottom: 0; }
+.field label { display: block; font-size: 11px; color: var(--text-sub); margin-bottom: 3px; }
+.field .val { font-size: 14.5px; font-weight: 500; white-space: pre-wrap; }
+
+.hazard-item {
+  border: 1px solid var(--border-light); border-radius: var(--radius); padding: 10px 12px;
+  margin-bottom: 8px; background: var(--surface2);
+}
+.hazard-item:last-child { margin-bottom: 0; }
+.hazard-item .hn { font-family: var(--mono); font-size: 10px; color: var(--warn); font-weight: 700; margin-bottom: 6px; }
+.hazard-item .hp { font-size: 13.5px; margin-bottom: 6px; }
+.hazard-item .ha { font-size: 13px; color: var(--text-sub); }
+.hazard-item .ha::before { content: "→ "; }
+
+/* 署名者リスト */
+.signer-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  border: 1px solid var(--border-light); border-radius: var(--radius); padding: 10px 12px;
+  margin-bottom: 8px; background: var(--surface2);
+}
+.signer-row:last-child { margin-bottom: 0; }
+.signer-row.done { border-color: var(--success); background: #f2faf5; }
+.signer-name { font-size: 14px; font-weight: 500; }
+.signer-status { font-size: 11px; color: var(--text-muted); }
+.signer-row.done .signer-status { color: var(--success); font-weight: 700; }
+.signer-sign-thumb { max-height: 30px; max-width: 90px; filter: contrast(3); mix-blend-mode: multiply; background: #fff; border-radius: 4px; }
+.sign-btn {
+  padding: 8px 14px; border-radius: var(--radius); border: none; background: var(--primary); color: #fff;
+  font-family: var(--font); font-size: 12.5px; font-weight: 700; cursor: pointer; flex-shrink: 0;
+}
+.sign-btn:disabled { background: var(--border); color: var(--text-muted); cursor: default; }
+
+/* サインパッドモーダル */
+.sign-modal-overlay {
+  display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: #000; z-index: 9999; flex-direction: column;
+}
+.sign-modal-overlay.open { display: flex; }
+.sign-modal-header {
+  background: var(--primary); padding: 16px 20px; display: flex; align-items: center;
+  justify-content: space-between; flex-shrink: 0;
+}
+.sign-modal-header span { color: #fff; font-size: 16px; font-weight: 700; }
+.sign-modal-header button {
+  background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: #fff;
+  padding: 9px 18px; border-radius: 8px; font-size: 14px; cursor: pointer;
+}
+.sign-modal-canvas-wrap { flex: 1; position: relative; overflow: hidden; background: #fff; }
+#sign-pad-canvas { display: block; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+.sign-modal-guide { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; font-size: 13px; color: #bbb; pointer-events: none; }
+.sign-modal-footer { background: #eceff1; padding: 14px 18px; display: flex; gap: 10px; flex-shrink: 0; }
+.sign-modal-footer button { flex: 1; padding: 15px; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.sign-modal-clear { background: #fff; border: 1.5px solid #ccc; color: #333; }
+.sign-modal-confirm { background: var(--primary); color: #fff; flex: 2; }
+
+.toast {
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--text); color: #fff; padding: 11px 20px; border-radius: 24px; font-size: 13px;
+  opacity: 0; pointer-events: none; transition: all .25s; z-index: 500; white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>KY(危険予知)活動 内容確認・署名</h1>
+  <p>シオンテクノス株式会社</p>
+</div>
+
+<main id="main-content">
+  <div class="state-box" id="loading-state">読み込み中…</div>
+</main>
+
+<!-- Sign Pad Modal -->
+<div id="sign-pad-modal" class="sign-modal-overlay">
+  <div class="sign-modal-header">
+    <span id="sign-modal-title">サインをお願いします</span>
+    <button type="button" onclick="closeSignPad()">キャンセル</button>
+  </div>
+  <div class="sign-modal-canvas-wrap">
+    <canvas id="sign-pad-canvas"></canvas>
+    <div class="sign-modal-guide">こちらにサインしてください</div>
+  </div>
+  <div class="sign-modal-footer">
+    <button type="button" class="sign-modal-clear" onclick="clearSignPad()">クリア</button>
+    <button type="button" class="sign-modal-confirm" onclick="confirmSignPad()">✓ このサインで確定</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="js/config.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const recordId = params.get('id');
+let record = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  initSignPad();
+  if (!recordId) {
+    renderError('URLにidが指定されていません。QRコードから開き直してください。');
+    return;
+  }
+  loadRecord();
+});
+
+async function loadRecord() {
+  try {
+    const res = await fetch(`${GAS_URL}?action=ky_get&id=${encodeURIComponent(recordId)}`);
+    const json = await res.json();
+    if (json.status !== 'success') throw new Error(json.data || '取得に失敗しました');
+    record = json.data;
+    render();
+  } catch (err) {
+    renderError('記録の取得に失敗しました: ' + err.message);
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : str;
+  return div.innerHTML;
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return String(d);
+  return `${dt.getFullYear()}/${dt.getMonth()+1}/${dt.getDate()}`;
+}
+
+function renderError(msg) {
+  document.getElementById('main-content').innerHTML = `<div class="state-box">${escapeHtml(msg)}</div>`;
+}
+
+function render() {
+  const hazards = Array.isArray(record.hazards) ? record.hazards : [];
+  const workers = Array.isArray(record.workers) ? record.workers : [];
+
+  const hazardsHtml = hazards.map((h, i) => `
+    <div class="hazard-item">
+      <div class="hn">危険予知 #${i + 1}</div>
+      <div class="hp">${escapeHtml(h.point || '')}</div>
+      <div class="ha">${escapeHtml(h.action || '')}</div>
+    </div>
+  `).join('') || '<div class="field"><span class="val">登録なし</span></div>';
+
+  const workersHtml = workers.map((w, i) => signerRowHtml(w.name, !!w.signature, w.signature, `worker:${i}`)).join('')
+    || '<div class="field"><span class="val">作業者の登録がありません</span></div>';
+
+  const confirmHtml = record.confirmedBy
+    ? signerRowHtml(record.confirmedBy, !!record.confirmedBySignature, record.confirmedBySignature, 'confirm')
+    : '<div class="field"><span class="val">確認者の登録がありません</span></div>';
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="panel">
+      <div class="panel-title">📋 作業情報</div>
+      <div class="field"><label>日付</label><div class="val">${formatDate(record.date)}</div></div>
+      <div class="field"><label>現場名</label><div class="val">${escapeHtml(record.siteName)}</div></div>
+      <div class="field"><label>作業内容</label><div class="val">${escapeHtml(record.workContent)}</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">⚠️ 危険予知</div>
+      ${hazardsHtml}
+    </div>
+
+    ${record.priorityAction ? `
+    <div class="panel">
+      <div class="panel-title">🎯 今日の重点実施項目</div>
+      <div class="field"><div class="val">${escapeHtml(record.priorityAction)}</div></div>
+    </div>` : ''}
+
+    <div class="panel">
+      <div class="panel-title">✏️ 作業者 － 内容確認・署名</div>
+      <p style="font-size:12px;color:var(--text-sub);margin-bottom:10px;">内容を確認したら、ご自身の名前の「サイン」ボタンをタップしてください。</p>
+      ${workersHtml}
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">✅ 確認者</div>
+      ${confirmHtml}
+    </div>
+  `;
+}
+
+function signerRowHtml(name, signed, signatureUrl, target) {
+  return `
+    <div class="signer-row ${signed ? 'done' : ''}" id="signer-row-${cssId(target)}">
+      <div>
+        <div class="signer-name">${escapeHtml(name || '（未入力）')}</div>
+        <div class="signer-status" id="signer-status-${cssId(target)}">${signed ? '署名済み' : '未署名'}</div>
+      </div>
+      ${signed
+        ? `<img class="signer-sign-thumb" id="signer-thumb-${cssId(target)}" src="${signatureUrl}" alt="署名">`
+        : `<button type="button" class="sign-btn" id="signer-btn-${cssId(target)}" onclick="openSignPad('${target}', '${escapeJs(name)}')">✏ サイン</button>`
+      }
+    </div>
+  `;
+}
+
+function cssId(target) { return target.replace(':', '-'); }
+function escapeJs(str) { return String(str || '').replace(/'/g, "\\'"); }
+
+// ============================================================
+// 署名パッド
+// ============================================================
+let padCanvas, padCtx, padDrawing = false;
+let currentTarget = null;
+
+function initSignPad() {
+  padCanvas = document.getElementById('sign-pad-canvas');
+  padCtx = padCanvas.getContext('2d');
+  function pos(e) {
+    const r = padCanvas.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return { x: t.clientX - r.left, y: t.clientY - r.top };
+  }
+  padCanvas.addEventListener('mousedown', e => { padDrawing = true; const p = pos(e); padCtx.beginPath(); padCtx.moveTo(p.x, p.y); });
+  padCanvas.addEventListener('mousemove', e => { if (!padDrawing) return; const p = pos(e); padCtx.lineTo(p.x, p.y); padCtx.stroke(); });
+  padCanvas.addEventListener('mouseup', () => padDrawing = false);
+  padCanvas.addEventListener('mouseleave', () => padDrawing = false);
+  padCanvas.addEventListener('touchstart', e => { e.preventDefault(); padDrawing = true; const p = pos(e); padCtx.beginPath(); padCtx.moveTo(p.x, p.y); });
+  padCanvas.addEventListener('touchmove', e => { e.preventDefault(); if (!padDrawing) return; const p = pos(e); padCtx.lineTo(p.x, p.y); padCtx.stroke(); });
+  padCanvas.addEventListener('touchend', () => padDrawing = false);
+}
+
+function resizePadCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  padCanvas.width = padCanvas.offsetWidth * dpr;
+  padCanvas.height = padCanvas.offsetHeight * dpr;
+  padCtx.scale(dpr, dpr);
+  padCtx.strokeStyle = '#000';
+  padCtx.lineWidth = 6;
+  padCtx.lineCap = 'round';
+  padCtx.lineJoin = 'round';
+}
+
+window.openSignPad = function(target, name) {
+  currentTarget = target;
+  document.getElementById('sign-modal-title').textContent = `${name || ''} さんのサイン`;
+  document.getElementById('sign-pad-modal').classList.add('open');
+  setTimeout(resizePadCanvas, 80);
+};
+window.closeSignPad = function() {
+  document.getElementById('sign-pad-modal').classList.remove('open');
+  currentTarget = null;
+};
+window.clearSignPad = function() {
+  padCtx.clearRect(0, 0, padCanvas.width, padCanvas.height);
+};
+window.confirmSignPad = async function() {
+  const px = padCtx.getImageData(0, 0, padCanvas.width, padCanvas.height).data;
+  if (!px.some((v, i) => i % 4 === 3 && v > 0)) {
+    alert('サインを入力してください');
+    return;
+  }
+  const dataUrl = padCanvas.toDataURL('image/png');
+  const target = currentTarget;
+  if (!target) return;
+
+  const confirmBtn = document.querySelector('.sign-modal-confirm');
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = '送信中…';
+
+  try {
+    const isWorker = target.startsWith('worker:');
+    const body = isWorker
+      ? { action: 'ky_sign', payload: { id: recordId, target: 'worker', workerIndex: Number(target.split(':')[1]), signature: dataUrl } }
+      : { action: 'ky_sign', payload: { id: recordId, target: 'confirm', signature: dataUrl } };
+
+    const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(body) });
+    const json = await res.json();
+    if (json.status !== 'success') throw new Error(json.data || '送信に失敗しました');
+
+    closeSignPad();
+    showToast('署名を保存しました');
+    await loadRecord(); // 最新状態を再取得して反映
+  } catch (err) {
+    showToast('保存エラー: ' + err.message);
+  } finally {
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = '✓ このサインで確定';
+  }
+};
+
+let toastTimer = null;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+}
+</script>
+</body>
+</html>

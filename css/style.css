@@ -285,6 +285,12 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--w
   border: 1px solid var(--border-light);
 }
 
+.detail-actions {
+  display: flex; flex-direction: column; gap: 8px; margin-top: 18px;
+  padding-top: 14px; border-top: 1px solid var(--border-light);
+}
+.detail-actions .btn { width: 100%; }
+
 /* List view */
 .ky-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
