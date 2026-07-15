@@ -280,31 +280,82 @@ function workerNames(rec) {
   return rec.workers || '';
 }
 
+function yearMonthOf(d) {
+  if (!d) return '未設定';
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return '未設定';
+  return `${dt.getFullYear()}年${dt.getMonth() + 1}月`;
+}
+function yearMonthKey(d) {
+  if (!d) return '0000-00';
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return '0000-00';
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`;
+}
+
 function renderKyList() {
   const container = document.getElementById('ky-list-container');
   if (!kyRecords.length) {
     container.innerHTML = '<div class="empty-state">まだKY活動の記録がありません。<br>「新規記録」タブから登録してください。</div>';
     return;
   }
-  container.innerHTML = '';
+
+  // ---- 作業年月ごとにグループ化 ----
+  const groups = {};
   kyRecords.forEach(rec => {
-    const hazards = Array.isArray(rec.hazards) ? rec.hazards : [];
-    const workers = workerNames(rec);
-    const card = document.createElement('div');
-    card.className = 'ky-card';
-    card.addEventListener('click', () => showDetail(rec));
-    card.innerHTML = `
-      <div class="ky-card-head">
-        <span class="ky-card-date">${formatDate(rec.date)}</span>
-      </div>
-      <div class="ky-card-site">${escapeHtml(rec.siteName || '(現場名未入力)')}</div>
-      <div class="ky-card-work">${escapeHtml(rec.workContent || '')}</div>
-      <div class="ky-card-meta">
-        <span>危険予知 ${hazards.length}件</span>
-        <span>${escapeHtml(workers)}</span>
-      </div>
-    `;
-    container.appendChild(card);
+    const key = yearMonthKey(rec.date);
+    if (!groups[key]) groups[key] = { label: yearMonthOf(rec.date), records: [] };
+    groups[key].records.push(rec);
+  });
+
+  // 作業年月：新しい月が先頭
+  const sortedKeys = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+
+  container.innerHTML = '';
+  sortedKeys.forEach(key => {
+    const group = groups[key];
+
+    // ---- 月内は 作成者(確認者) ごとにまとめて、氏名順→日付新しい順 ----
+    group.records.sort((a, b) => {
+      const cmp = (a.confirmedBy || '').localeCompare(b.confirmedBy || '', 'ja');
+      if (cmp !== 0) return cmp;
+      return new Date(b.date) - new Date(a.date);
+    });
+
+    const monthHead = document.createElement('div');
+    monthHead.className = 'ky-group-head';
+    monthHead.innerHTML = `<span>${escapeHtml(group.label)}</span><span class="ky-group-count">${group.records.length}件</span>`;
+    container.appendChild(monthHead);
+
+    let lastCreator = null;
+    group.records.forEach(rec => {
+      const creator = rec.confirmedBy || '(作成者未入力)';
+      if (creator !== lastCreator) {
+        const creatorHead = document.createElement('div');
+        creatorHead.className = 'ky-creator-head';
+        creatorHead.textContent = `👤 ${creator}`;
+        container.appendChild(creatorHead);
+        lastCreator = creator;
+      }
+
+      const hazards = Array.isArray(rec.hazards) ? rec.hazards : [];
+      const workers = workerNames(rec);
+      const card = document.createElement('div');
+      card.className = 'ky-card';
+      card.addEventListener('click', () => showDetail(rec));
+      card.innerHTML = `
+        <div class="ky-card-head">
+          <span class="ky-card-date">${formatDate(rec.date)}</span>
+        </div>
+        <div class="ky-card-site">${escapeHtml(rec.siteName || '(現場名未入力)')}</div>
+        <div class="ky-card-work">${escapeHtml(rec.workContent || '')}</div>
+        <div class="ky-card-meta">
+          <span>危険予知 ${hazards.length}件</span>
+          <span>${escapeHtml(workers)}</span>
+        </div>
+      `;
+      container.appendChild(card);
+    });
   });
 }
 
